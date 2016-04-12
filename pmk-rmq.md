@@ -21,24 +21,30 @@ Here is a short feature matrix:
 | Join cluster    | no            | no       | yes         | yes             |
 | Repair cluster  | no            | no       | yes         | yes*3           |
 | Boostrap cluster| no            | no       | yes         | yes             |
-| Master/Slave    | no            | no       | yes         | no              |
-| Reset node      | no            | no       | yes*4       | yes*5           |
-| Easy to maintain| yes           | yes      | no*6        | yes*7           |
+| Master/Slave    | no            | no       | yes*4       | no              |
+| Reset node      | no            | no       | yes*5       | yes*6           |
+| Easy to maintain| yes           | yes      | no*7        | yes*8           |
 | Userbase        | unknown       | unknown  | Mirantis & Co | RedHat & Clients|
 | Development pace| stalled       | stalled  | very active | maintenance mode|
-| systemd usage*8 | no            | no       | no          | no              |
-| LoCs            | < 400         | < 400    | > 2200      | < 400           |
+| systemd usage*9 | no            | no       | no          | no              |
+| LoCs            | < 400         | < 400    | > 1800*10   | < 400           |
 
 1. Does it use PID-value from PID-file for stopping application?
-2. It uses value of a PID-file, but doesn't pass PID-file to rabbitmqctl itself.
+2. It passes PID-file to rabbitmqctl. If can't be stopped, uses the value of a
+   PID-file to kill (SIGTERM, or SIGKILL if can't terminate). If no or bad
+   value, it matches by the beam process plus the rabbit node name, then kills.
 3. Patch applied to src.rpm. Not yet upstreamed.
-4. Uses rabbitmqctl to reset node (in case of any issues).
-5. Stops node and wipes out all the data (does rm -rf, thus making settings not
+4. It is Master/Master (A/A) for the rabbit app. But there is a Master resource
+   in a Pacemaker, which joins Slave resources to form a cluster.
+5. Uses rabbitmqctl to reset node (in case of any issues). If can't reset, it
+   stops node and wipes out all the data as well.
+6. Stops node and wipes out all the data (does rm -rf, thus making settings not
    listed in /etc/rabbitmq/rabbitmq.config go away).
-6. Extremely complex. Includes Erlang code snippets which loaded into RabbitMQ
-   on the fly.
-7. Sort of.
-8. Startup notifications provided by systemd.
+7. Extremely complex. Includes Erlang code snippets which loaded into RabbitMQ
+   on the fly. Although it has UML flow charts for main events.
+8. Sort of.
+9. Startup notifications provided by systemd.
+10. Excluding comments and whitelines.
 
 Conclusion
 ------------------------------------------
